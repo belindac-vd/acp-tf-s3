@@ -65,8 +65,6 @@ Module usage:
 | s3\_bucket\_whitelist\_kms\_key | KMS Key ID of the whitelist ip generated bucket |
 | s3\_bucket\_whitelist\_vpc\_arn\_kms\_key\_arn | KMS Key ARN of the whitelist vpc generated bucket |
 | s3\_bucket\_whitelist\_vpc\_kms\_key | KMS Key ID of the whitelist vpc generated bucket |
-| s3\_bucket\_with\_logging\_arn | ARN of generated S3 bucket with server access logging enabled |
-| s3\_bucket\_with\_logging\_id | ID of generated S3 bucket with server access logging enabled |
 | s3\_website\_bucket\_arn | ARN of generated S3 bucket with website hosting enabled |
 | s3\_website\_bucket\_id | ID of generated S3 bucket with website hosting enabled |
 

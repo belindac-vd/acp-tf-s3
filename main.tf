@@ -16,8 +16,8 @@
 */
 
 locals {
-  s3_bucket_arn = "${coalesce(join("", aws_s3_bucket.s3_bucket.*.arn), join("", aws_s3_bucket.s3_bucket_with_logging.*.arn), join("", aws_s3_bucket.s3_website_bucket.*.arn), join("", aws_s3_bucket.s3_website_bucket_with_logging.*.arn))}"
-  s3_bucket_id  = "${coalesce(join("", aws_s3_bucket.s3_bucket.*.id), join("", aws_s3_bucket.s3_bucket_with_logging.*.id), join("", aws_s3_bucket.s3_website_bucket.*.id), join("", aws_s3_bucket.s3_website_bucket_with_logging.*.id))}"
+  s3_bucket_arn = "${coalesce(join("", aws_s3_bucket.s3_bucket.*.arn), join("", aws_s3_bucket.s3_website_bucket.*.arn), join("", aws_s3_bucket.s3_website_bucket_with_logging.*.arn))}"
+  s3_bucket_id  = "${coalesce(join("", aws_s3_bucket.s3_bucket.*.id), join("", aws_s3_bucket.s3_website_bucket.*.id), join("", aws_s3_bucket.s3_website_bucket_with_logging.*.id))}"
 }
 
 data "aws_caller_identity" "current" {}
@@ -88,67 +88,67 @@ resource "aws_kms_alias" "s3_bucket_kms_alias_whitelist_ip_and_vpc" {
   target_key_id = "${aws_kms_key.s3_bucket_kms_key_whitelist_ip_and_vpc.key_id}"
 }
 
+# resource "aws_s3_bucket" "s3_bucket" {
+#   count = "${var.website_hosting == "false" && var.logging_enabled == "false" ? 1 : 0}"
+
+#   bucket = "${var.name}"
+#   acl    = "${var.acl}"
+
+#   acceleration_status = "${var.acceleration_status}"
+
+#   cors_rule {
+#     allowed_headers = "${var.cors_allowed_headers}"
+#     allowed_methods = "${var.cors_allowed_methods}"
+#     allowed_origins = "${var.cors_allowed_origins}"
+#     expose_headers  = "${var.cors_expose_headers}"
+#     max_age_seconds = "${var.cors_max_age_seconds}"
+#   }
+
+#   versioning {
+#     enabled = "${var.versioning_enabled}"
+#   }
+
+#   lifecycle_rule {
+#     id      = "transition-to-infrequent-access-storage"
+#     enabled = "${var.lifecycle_infrequent_storage_transition_enabled}"
+
+#     prefix = "${var.lifecycle_infrequent_storage_object_prefix}"
+
+#     transition {
+#       days          = "${var.lifecycle_days_to_infrequent_storage_transition}"
+#       storage_class = "STANDARD_IA"
+#     }
+#   }
+
+#   lifecycle_rule {
+#     id      = "transition-to-glacier"
+#     enabled = "${var.lifecycle_glacier_transition_enabled}"
+
+#     prefix = "${var.lifecycle_glacier_object_prefix}"
+
+#     transition {
+#       days          = "${var.lifecycle_days_to_glacier_transition}"
+#       storage_class = "GLACIER"
+#     }
+#   }
+
+#   lifecycle_rule {
+#     id      = "expire-objects"
+#     enabled = "${var.lifecycle_expiration_enabled}"
+
+#     prefix = "${var.lifecycle_expiration_object_prefix}"
+
+#     expiration {
+#       days = "${var.lifecycle_days_to_expiration}"
+#     }
+#   }
+
+#   server_side_encryption_configuration = "${var.server_side_encryption_configuration}"
+
+#   tags = "${merge(var.tags, map("Name", format("%s-%s", var.environment, var.name)), map("Env", var.environment))}"
+# }
+
 resource "aws_s3_bucket" "s3_bucket" {
-  count = "${var.website_hosting == "false" && var.logging_enabled == "false" ? 1 : 0}"
-
-  bucket = "${var.name}"
-  acl    = "${var.acl}"
-
-  acceleration_status = "${var.acceleration_status}"
-
-  cors_rule {
-    allowed_headers = "${var.cors_allowed_headers}"
-    allowed_methods = "${var.cors_allowed_methods}"
-    allowed_origins = "${var.cors_allowed_origins}"
-    expose_headers  = "${var.cors_expose_headers}"
-    max_age_seconds = "${var.cors_max_age_seconds}"
-  }
-
-  versioning {
-    enabled = "${var.versioning_enabled}"
-  }
-
-  lifecycle_rule {
-    id      = "transition-to-infrequent-access-storage"
-    enabled = "${var.lifecycle_infrequent_storage_transition_enabled}"
-
-    prefix = "${var.lifecycle_infrequent_storage_object_prefix}"
-
-    transition {
-      days          = "${var.lifecycle_days_to_infrequent_storage_transition}"
-      storage_class = "STANDARD_IA"
-    }
-  }
-
-  lifecycle_rule {
-    id      = "transition-to-glacier"
-    enabled = "${var.lifecycle_glacier_transition_enabled}"
-
-    prefix = "${var.lifecycle_glacier_object_prefix}"
-
-    transition {
-      days          = "${var.lifecycle_days_to_glacier_transition}"
-      storage_class = "GLACIER"
-    }
-  }
-
-  lifecycle_rule {
-    id      = "expire-objects"
-    enabled = "${var.lifecycle_expiration_enabled}"
-
-    prefix = "${var.lifecycle_expiration_object_prefix}"
-
-    expiration {
-      days = "${var.lifecycle_days_to_expiration}"
-    }
-  }
-
-  server_side_encryption_configuration = "${var.server_side_encryption_configuration}"
-
-  tags = "${merge(var.tags, map("Name", format("%s-%s", var.environment, var.name)), map("Env", var.environment))}"
-}
-
-resource "aws_s3_bucket" "s3_bucket_with_logging" {
   count = "${var.website_hosting == "false" && var.logging_enabled ? 1 : 0}"
 
   bucket = "${var.name}"
@@ -349,7 +349,7 @@ resource "aws_s3_bucket" "s3_website_bucket_with_logging" {
 }
 
 resource "aws_s3_bucket_policy" "s3_website_bucket" {
-  count  = "${var.website_hosting == "true"? 1 : 0}"
+  count  = "${var.website_hosting == "true" ? 1 : 0}"
   bucket = "${local.s3_bucket_id}"
 
   policy = <<POLICY
